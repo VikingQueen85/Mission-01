@@ -11,15 +11,17 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Links to a custom stylesheet -->
   <link rel="stylesheet" href="/src/styles.css">
+  <!-- Links to a custom stylesheet -->
+  <link rel="stylesheet" href="/src/styles.css">
 </head>
 <body>
   <div class="container">
     <!-- Header section with a title and description -->
     <header class="my-5">
       <h1 class="text-center">Car Finder</h1>
-      <p class="text-center">Upload an image to detect cars and get the year, make, and model!</p>
+      <p class="text-center">Upload an image to detect car types!!</p>
     </header>
-    
+
     <!-- Form section for uploading an image -->
     <div class="row">
       <div class="col-md-6 offset-md-3">
@@ -46,6 +48,17 @@
 
     <!-- Section for displaying prediction results -->
     <div class="row mt-4">
+    <!-- Section for displaying the uploaded image preview -->
+    <div class="row mt-3">
+      <div class="col-md-6 offset-md-3 text-center">
+        <img id="uploadedImage" class="img-fluid mt-3 d-none uploaded-image" 
+          alt="Uploaded vehicle image" 
+          title="Uploaded Image Preview" />
+      </div>
+    </div>
+
+    <!-- Section for displaying prediction results -->
+    <div class="row mt-4">
       <div class="col-md-6 offset-md-3">
         <h3>Prediction Results:</h3>
         <!-- Placeholder for prediction results, initially hidden -->
@@ -55,7 +68,6 @@
       </div>
     </div>
   </div>
-
   <!-- Links to the main JavaScript file for functionality -->
   <script type="module" src="/src/main.js"></script>
 </body>

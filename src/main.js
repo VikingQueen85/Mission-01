@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS for styli
 const endpoint = import.meta.env.VITE_API_ENDPOINT; // API endpoint from environment variables
 const apiKey = import.meta.env.VITE_API_KEY; // API key from environment variables
 
+// Debugging output to check if endpoint is loaded
 console.log("API Endpoint:", endpoint); // Debugging output to verify API endpoint
 
 // DOM elements
@@ -79,19 +80,12 @@ function displayResults(data) {
         // Sort predictions by probability in descending order
         const topPrediction = data.predictions.sort((a, b) => b.probability - a.probability)[0];
 
-        // Extract Vehicle Type (tagName) & Details
+        // Extract Vehicle Type (tagName)
         const vehicleType = topPrediction.tagName || "Unknown"; // Extract vehicle type or default to "Unknown"
-        const year = topPrediction.year || "Unknown"; // Extract year or default to "Unknown"
-        const make = topPrediction.make || "Unknown"; // Extract make or default to "Unknown"
-        const model = topPrediction.model || "Unknown"; // Extract model or default to "Unknown"
 
         // Display results properly
         resultDiv.innerHTML = `<strong>Detected Vehicle:</strong> ${vehicleType}<br>
-                                <strong>Make:</strong> ${make}<br>
-                                <strong>Model:</strong> ${model}<br>
-                                <strong>Year:</strong> ${year}<br>
                                 <strong>Confidence:</strong> ${(topPrediction.probability * 100).toFixed(2)}%`;
-
     } else {
         // Handle case where no predictions are found
         resultDiv.textContent = "No vehicles detected.";
