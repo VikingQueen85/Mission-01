@@ -12,10 +12,10 @@ I then used the Azure Portal to manually upload pictures of cars to compare agai
 
 ## More Details
 
-My project is a React + Vite application integrated with a Bootstap-powered front-end for a car finder tool. 
+My project is a React + Vite application integrated with a Bootstap-powered front-end for a car finder tool.
 My App.jsx file contains a simple counter example from the default Vite template.
 This can be modified to integrate the car detection functionality.
-My index.html serves as the main landing page. 
+My index.html serves as the main landing page.
 It includes a form to upload an image and a section to display the results.
 Bootstrap is used for styling and responsive design.
 /src/main.js processes the image upload and displays the results.

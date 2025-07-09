@@ -1,94 +1,126 @@
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS for styling
 
-// Azure API info (Loaded from Vite environment variables)
-const endpoint = import.meta.env.VITE_API_ENDPOINT; // API endpoint from environment variables
-const apiKey = import.meta.env.VITE_API_KEY; // API key from environment variables
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-// Debugging output to check if endpoint is loaded
-console.log("API Endpoint:", endpoint); // Debugging output to verify API endpoint
+const AZURE_PREDICTION_ENDPOINT = import.meta.env.VITE_AZURE_API_ENDPOINT;
+const AZURE_PREDICTION_KEY = import.meta.env.VITE_AZURE_PREDICTION_KEY;
 
-// DOM elements
-const form = document.getElementById('uploadForm'); // Form element for image upload
-const resultDiv = document.getElementById('result'); // Div to display results
-const uploadedImage = document.getElementById('uploadedImage'); // Image preview element
+console.log("API Endpoint:", AZURE_PREDICTION_ENDPOINT);
 
-// Handle image form submission
+const form = document.getElementById('uploadForm');
+const resultDiv = document.getElementById('result');
+const uploadedImage = document.getElementById('uploadedImage');
+
 form.addEventListener('submit', async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault();
 
-    const fileInput = document.getElementById('imageInput'); // File input element
-    const file = fileInput.files[0]; // Get the selected file
-    if (!file) return alert("Please select an image."); // Alert if no file is selected
+    const fileInput = document.getElementById('imageInput');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select an image.");
+        return;
+    }
 
     // Show image preview
-    const reader = new FileReader(); // FileReader to read the image
+    const reader = new FileReader();
     reader.onload = function (e) {
-        uploadedImage.src = e.target.result; // Set the image preview source
-        uploadedImage.classList.remove('d-none'); // Make the image visible
+        uploadedImage.src = e.target.result;
+        uploadedImage.classList.remove('d-none');
     };
-    reader.readAsDataURL(file); // Read the file as a data URL
+    reader.readAsDataURL(file);
 
     try {
-        // Check if API endpoint and key are available
-        if (!endpoint || !apiKey) {
-            console.error("Missing API endpoint or API key"); // Log error if missing
-            resultDiv.textContent = "Error: Missing API endpoint or API key."; // Display error message
-            resultDiv.classList.remove('d-none'); // Make the result div visible
+        if (!AZURE_PREDICTION_ENDPOINT || !AZURE_PREDICTION_KEY) {
+            console.error("Error: Missing API endpoint or API key in environment variables.");
+            resultDiv.textContent = "Error: Missing API endpoint or API key. Please check your .env file.";
+            resultDiv.classList.remove('d-none');
             return;
         }
 
-        // Sending request to Azure API
-        const response = await fetch(endpoint, {
-            method: 'POST', // HTTP POST method
+        console.log("File Name:", file.name);
+        console.log("File Type (MIME):", file.type);
+        console.log("File Size (bytes):", file.size);
+
+        let imageToSend = file;
+
+        // Convert to JPEG if file is WebP
+        if (file.type === 'image/webp') {
+            imageToSend = await convertImageToJpeg(file);
+            console.log("Converted WebP to JPEG for Azure compatibility.");
+        }
+
+        const response = await fetch(AZURE_PREDICTION_ENDPOINT, {
+            method: 'POST',
             headers: {
-                'Prediction-Key': apiKey, // API key for authentication
-                'Content-Type': 'application/octet-stream', // Content type for binary data
+                'Prediction-Key': AZURE_PREDICTION_KEY,
+                'Content-Type': 'application/octet-stream',
             },
-            body: file, // Send the image file as binary data
+            body: imageToSend,
         });
 
-        // Handle non-OK responses
         if (!response.ok) {
-            const errorText = await response.text(); // Get error response text
-            console.error('Error response:', errorText); // Log the error
-            resultDiv.textContent = `Error: ${errorText}`; // Display the error message
-            resultDiv.classList.remove('d-none'); // Make the result div visible
+            const errorText = await response.text();
+            console.error('Error response from Azure API:', response.status, response.statusText, errorText);
+            resultDiv.textContent = `Error from Azure: ${response.status} ${response.statusText} - ${errorText}`;
+            resultDiv.classList.remove('d-none');
             return;
         }
 
-        // Get API response
-        const result = await response.json(); // Parse the JSON response
-        console.log("Azure API Response:", result); // Debugging output for API response
+        const result = await response.json();
+        console.log("Azure API Response:", result);
 
         if (result) {
-            displayResults(result); // Call function to display results
+            displayResults(result);
         }
 
     } catch (error) {
-        // Handle errors during the API request
-        console.error('An error occurred:', error); // Log the error
-        resultDiv.textContent = `An error occurred: ${error.message}`; // Display the error message
-        resultDiv.classList.remove('d-none'); // Make the result div visible
+        console.error('An unexpected error occurred:', error);
+        resultDiv.textContent = `An unexpected error occurred: ${error.message}`;
+        resultDiv.classList.remove('d-none');
     }
 });
 
-// Function to display results from Azure (Only top result shown)
+// Convert WebP to JPEG using canvas
+function convertImageToJpeg(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        const img = new Image();
+
+        reader.onload = (e) => {
+            img.src = e.target.result;
+        };
+
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            canvas.toBlob((blob) => {
+                if (blob) resolve(blob);
+                else reject(new Error('Conversion to JPEG failed'));
+            }, 'image/jpeg', 0.95);
+        };
+
+        reader.onerror = reject;
+        img.onerror = reject;
+
+        reader.readAsDataURL(file);
+    });
+}
+
+// Display prediction result
 function displayResults(data) {
-    console.log("Processed Data:", data); // Debugging output for processed data
+    console.log("Processed Data for Display:", data);
 
     if (data.predictions && data.predictions.length > 0) {
-        // Sort predictions by probability in descending order
         const topPrediction = data.predictions.sort((a, b) => b.probability - a.probability)[0];
+        const vehicleType = topPrediction.tagName || "Unknown";
 
-        // Extract Vehicle Type (tagName)
-        const vehicleType = topPrediction.tagName || "Unknown"; // Extract vehicle type or default to "Unknown"
-
-        // Display results properly
         resultDiv.innerHTML = `<strong>Detected Vehicle:</strong> ${vehicleType}<br>
                                 <strong>Confidence:</strong> ${(topPrediction.probability * 100).toFixed(2)}%`;
     } else {
-        // Handle case where no predictions are found
         resultDiv.textContent = "No vehicles detected.";
     }
-    resultDiv.classList.remove('d-none'); // Make the result div visible
+    resultDiv.classList.remove('d-none');
 }

@@ -1,37 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Specifies the character encoding for the document -->
   <meta charset="UTF-8">
-  <!-- Ensures proper rendering and touch zooming on mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Sets the title of the webpage -->
   <title>Car Finder</title>
-  <!-- Links to the Bootstrap CSS framework for styling -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Links to a custom stylesheet -->
   <link rel="stylesheet" href="/src/styles.css">
-  <!-- Links to a custom stylesheet -->
   <link rel="stylesheet" href="/src/styles.css">
 </head>
 <body>
   <div class="container">
-    <!-- Header section with a title and description -->
     <header class="my-5">
       <h1 class="text-center">Car Finder</h1>
       <p class="text-center">Upload an image to detect car types!!</p>
     </header>
 
-    <!-- Form section for uploading an image -->
     <div class="row">
       <div class="col-md-6 offset-md-3">
         <form id="uploadForm">
-          <!-- Input field for selecting an image file -->
           <div class="form-group mb-3">
             <label for="imageInput" class="form-label">Choose an Image</label>
             <input type="file" class="form-control" id="imageInput" accept="image/*" required />
           </div>
-          <!-- Submit button for the form -->
           <button type="submit" class="btn btn-primary w-100">Upload Image</button>
         </form>
       </div>
@@ -48,7 +38,6 @@
 
     <!-- Section for displaying prediction results -->
     <div class="row mt-4">
-    <!-- Section for displaying the uploaded image preview -->
     <div class="row mt-3">
       <div class="col-md-6 offset-md-3 text-center">
         <img id="uploadedImage" class="img-fluid mt-3 d-none uploaded-image" 
@@ -61,14 +50,11 @@
     <div class="row mt-4">
       <div class="col-md-6 offset-md-3">
         <h3>Prediction Results:</h3>
-        <!-- Placeholder for prediction results, initially hidden -->
         <div id="result" class="alert alert-info d-none">
-          <!-- Prediction results will appear here -->
         </div>
       </div>
     </div>
   </div>
-  <!-- Links to the main JavaScript file for functionality -->
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
